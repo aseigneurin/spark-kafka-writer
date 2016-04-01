@@ -78,8 +78,7 @@ public class TestJavaKafkaOutputDStream {
     producerConf.put("key.serializer.class", "kafka.serializer.StringEncoder");
     producerConf.put("metadata.broker.list", testUtil.getKafkaServerUrl());
     producerConf.put("request.required.acks", "1");
-    JavaDStreamKafkaWriter<String> writer = JavaDStreamKafkaWriterFactory.fromJavaDStream(instream);
-    writer.writeToKafka(producerConf, new ProcessingFunc());
+    JavaDStreamKafkaWriter.writeToKafka(instream, producerConf, new ProcessingFunc());
     ssc.start();
     Thread.sleep(10000);
     int i = 0;

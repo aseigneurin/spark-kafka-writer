@@ -18,13 +18,10 @@ package org.cloudera.spark.streaming.kafka
 
 import java.util.Properties
 
-import scala.reflect.ClassTag
-
 import kafka.producer.KeyedMessage
-
 import org.apache.spark.streaming.dstream.DStream
 
-class DStreamKafkaWriter[T: ClassTag](@transient dstream: DStream[T]) extends KafkaWriter[T] {
+object DStreamKafkaWriter extends Serializable {
 
   /**
    * To write data from a DStream to Kafka, call this function after creating the DStream. Once
@@ -40,11 +37,11 @@ class DStreamKafkaWriter[T: ClassTag](@transient dstream: DStream[T]) extends Ka
    * @tparam V The type of the value
    *
    */
-  override def writeToKafka[K, V](producerConfig: Properties,
-    serializerFunc: T => KeyedMessage[K, V]): Unit = {
+  def writeToKafka[T, K, V](dstream: DStream[T],
+                            producerConfig: Properties,
+                            serializerFunc: T => KeyedMessage[K, V]): Unit = {
     dstream.foreachRDD { rdd =>
-      val rddWriter = new RDDKafkaWriter[T](rdd)
-      rddWriter.writeToKafka(producerConfig, serializerFunc)
+      RDDKafkaWriter.writeToKafka(rdd, producerConfig, serializerFunc)
     }
   }
 }

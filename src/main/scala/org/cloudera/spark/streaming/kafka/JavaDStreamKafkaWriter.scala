@@ -1,12 +1,9 @@
 package org.cloudera.spark.streaming.kafka
 
 import java.util.Properties
-import org.apache.spark.api.java.function.Function
-
-import scala.reflect.ClassTag
 
 import kafka.producer.KeyedMessage
-
+import org.apache.spark.api.java.function.Function
 import org.apache.spark.streaming.api.java.JavaDStream
 
 /*
@@ -25,21 +22,10 @@ import org.apache.spark.streaming.api.java.JavaDStream
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-class JavaDStreamKafkaWriter[T](dstream: JavaDStream[T])(implicit val classTag: ClassTag[T]) {
-  private val dstreamWriter = new DStreamKafkaWriter[T](dstream.dstream)
-
-  def writeToKafka[K, V](
-    producerConfig: Properties,
-    function1: Function[T, KeyedMessage[K,V]]): Unit = {
-    dstreamWriter.writeToKafka(producerConfig, t => function1.call(t))
-  }
-}
-
-object JavaDStreamKafkaWriterFactory {
-
-  def fromJavaDStream[T](dstream: JavaDStream[T]): JavaDStreamKafkaWriter[T] = {
-    implicit val cmt: ClassTag[T] =
-      implicitly[ClassTag[AnyRef]].asInstanceOf[ClassTag[T]]
-    new JavaDStreamKafkaWriter[T](dstream)
+object JavaDStreamKafkaWriter {
+  def writeToKafka[T, K, V](dstream: JavaDStream[T],
+                            producerConfig: Properties,
+                            function1: Function[T, KeyedMessage[K, V]]): Unit = {
+    DStreamKafkaWriter.writeToKafka[T, K, V](dstream.dstream, producerConfig, t => function1.call(t))
   }
 }
