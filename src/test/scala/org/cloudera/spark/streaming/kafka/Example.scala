@@ -5,7 +5,6 @@ import java.util.Properties
 import kafka.producer.KeyedMessage
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.apache.spark.{SparkConf, SparkContext}
-import org.cloudera.spark.streaming.kafka.KafkaWriter._
 
 object Example {
 
@@ -35,8 +34,8 @@ object Example {
     producerConfig.put("key.serializer.class", "kafka.serializer.StringEncoder")
     producerConfig.put("request.required.acks", "1")
 
-    ssc.socketTextStream("localhost", 9123)
-      .writeToKafka(producerConfig, serializerFunc)
+    val dstream = ssc.socketTextStream("localhost", 9123)
+    DStreamKafkaWriter.writeToKafka(dstream, producerConfig, serializerFunc)
 
     ssc
   }
